@@ -18,6 +18,9 @@
 
 //demo method
 +(RunnerCourse*)readSampleRunnerCourse;
+
++ (void)testMethodTemporarySaveRunnerStep:(RunnerCourse*)course;
+
 @end
 
 

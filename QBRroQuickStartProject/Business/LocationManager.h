@@ -28,7 +28,7 @@
 
 - (void)beginRecordingRunnerNewTrace;
 
-- (void)giveupRunning;
+- (void)finishRunning;
 
 
 @end

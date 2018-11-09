@@ -61,16 +61,13 @@
 
 
 - (void)moveMapToLocation:(CLLocationCoordinate2D)coord {
-    MKCoordinateSpan span = MKCoordinateSpanMake(0.008, 0.008);
+    MKCoordinateSpan span     = MKCoordinateSpanMake(0.008, 0.008);
     MKCoordinateRegion region = MKCoordinateRegionMake(coord, span);
     [_mapView setRegion:region animated:NO];
 }
 
 
-- (void)demoMathod {
-    RunnerStep *step = [_runnerSteps lastObject];
-    [self moveMapToLocation:step.coordinate];
-}
+
 
 - (void)setupDashboardViews {
     _dashBoardView = [UIView new];
@@ -106,9 +103,9 @@
 
 
 - (void)setRunnerSteps:(NSArray *)runnerSteps {
-    _runnerSteps = runnerSteps;
-    [self demoMathod];
-//    [self startRunnerPathAnimation];
+    _runnerSteps     = runnerSteps;
+    RunnerStep *step = [_runnerSteps lastObject];
+    [self moveMapToLocation:step.coordinate];
     [self performSelector:@selector(startRunnerPathAnimation) withObject:self afterDelay:1.0];
 }
 

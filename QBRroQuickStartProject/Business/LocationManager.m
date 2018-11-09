@@ -8,6 +8,7 @@
 
 #import "LocationManager.h"
 #import <MapKit/MKGeometry.h>
+#import "EntityManager.h"
 #import "RRCoordCover.h"
 #import <UIKit/UIKit.h>
 #import "RunnerStep.h"
@@ -115,20 +116,9 @@
      *
      */
     [self broadcastWithNewStep:runner];
-//    [self testMethodTemporarySaveRunnerStep:runner];
 }
 
-- (void)testMethodTemporarySaveRunnerStep:(RunnerStep*)runner {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *cache = [defaults valueForKey:@"leiLocation"];
-    if (!cache) {
-        cache = [NSArray new];
-    }
-    NSMutableArray *mutable = [NSMutableArray arrayWithArray:cache];
-    [mutable addObject:[runner getDictionary]];
-    [defaults setValue:mutable forKey:@"leiLocation"];
-    [defaults synchronize];
-}
+
 
 
 
@@ -137,10 +127,12 @@
 #pragma mark - public methods
 - (void)pauseToRecordRunnerTrace {
     [_locationManager stopUpdatingLocation];
+    NSLog(@"暂停定位");
 }
 
 - (void)resumeToRecordRunnerTrace {
     [_locationManager startUpdatingLocation];
+    NSLog(@"重新开始定位");
 }
 
 - (void)beginRecordingRunnerNewTrace {
@@ -149,7 +141,9 @@
     
 }
 
--(void)giveupRunning {
+-(void)finishRunning {
+    [_locationManager stopUpdatingLocation];
+    [EntityManager testMethodTemporarySaveRunnerStep:_runnerCourse];
     _runnerCourse = [RunnerCourse new];
 }
 

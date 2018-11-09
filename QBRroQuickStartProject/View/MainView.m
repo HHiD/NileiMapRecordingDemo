@@ -28,19 +28,6 @@
     return self;
 }
 
-- (void)initViewWithResult {
-    [_mapView removeAnnotations:_mapView.annotations];
-    RunnerCourse *course = [EntityManager readRunnerCourse];
-    NSMutableArray *annotations = [NSMutableArray arrayWithCapacity:10];
-    for (int y=0; y<[course.steps count]; y++) {
-        RunnerStep *step  = [course.steps objectAtIndex:y];
-        MKPointAnnotation *annot = [MKPointAnnotation new];
-        annot.coordinate = step.coordinate;
-        annot.title = @"成功!";
-        [annotations addObject:annot];
-    }
-    [_mapView addAnnotations:annotations];
-}
 
 #pragma private mathod
 

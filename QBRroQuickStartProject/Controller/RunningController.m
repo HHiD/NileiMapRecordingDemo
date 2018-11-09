@@ -51,11 +51,14 @@
 #pragma mark - runningView delegate
 
 - (void)pauseButtonSelected:(BOOL)paused {
+    AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
     if (paused) {
         [self pause];
+        [app.locationManager pauseToRecordRunnerTrace];
     }
     else {
         [self beginTimer];
+        [app.locationManager resumeToRecordRunnerTrace];
     }
 }
 
@@ -64,6 +67,7 @@
 //    RunnerStep *step = [course.steps objectAtIndex:index];
     AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
     path.runnerCourse    = app.locationManager.runnerCourse;
+    [app.locationManager finishRunning];
 //    RunnerCourse *course = [EntityManager readSampleRunnerCourse];
 //    path.runnerCourse    = course;
     [self.navigationController pushViewController:path animated:YES];
@@ -71,7 +75,8 @@
 
 - (void)closeButtonSelected {
     [self dismissViewControllerAnimated:NO completion:nil];
-    
+    AppDelegate *app = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    [app.locationManager finishRunning];
 }
 
 #pragma mark - timer

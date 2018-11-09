@@ -38,6 +38,7 @@
     runnerCourse.steps = steps;
     return runnerCourse;
 }
+
 +(RunnerCourse*)readRunnerCourse {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *array = [defaults valueForKey:@"leiLocation"];
@@ -66,6 +67,20 @@
         return nil;
     }
     
+}
+
++ (void)testMethodTemporarySaveRunnerStep:(RunnerCourse*)course{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *cache = [defaults valueForKey:@"kocation"];
+    if (!cache) {
+        cache = [NSArray new];
+    }
+    NSMutableArray *mutable = [NSMutableArray arrayWithArray:cache];
+    for (RunnerStep *step in course.steps) {
+        [mutable addObject:[step getDictionary]];
+        [defaults setValue:mutable forKey:@"kocation"];
+    }
+    [defaults synchronize];
 }
 
 //@"lng"      :lng,
