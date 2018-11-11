@@ -7,14 +7,13 @@
 //
 
 #import "RunnerMapView.h"
-#import "EntityManager.h"
 #import "UIImage+RRKit.h"
 #import "Masonry.h"
 #import "Define.h"
 
 
 #define kAnimationDuration 6
-#define kMapMaskColor      [UIColor colorWithRed:0 green:0 blue:0 alpha:.05]
+#define kMapMaskColor      [UIColor colorWithRed:0 green:0 blue:0 alpha:.6]
 #define kDashboardHeight  NL_SCREEN_HEIGHT/4
 
 @implementation RunnerMapView {
@@ -26,8 +25,6 @@
     self = [super initWithFrame:frame];
     self.backgroundColor = NL_BACKGROUND_COLOR;
     [self setupViews];
-    [self setupDashboardViews];
-    [self addTransparentOverlay];
     return self;
 }
 
@@ -42,34 +39,10 @@
     [self addSubview:_mapView];
     [_mapView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(self);
-    }];
-}
-
-- (void)showRelocationButton {
-    UIButton *resetLocationBtn = [UIButton new];
-    [resetLocationBtn setImage:[UIImage imageNamed:@"nl_relocation"] forState:UIControlStateNormal];
-    
-    [self addSubview:resetLocationBtn];
-    [resetLocationBtn addTarget:self action:@selector(resetLocation:) forControlEvents:UIControlEventTouchUpInside];
-    [resetLocationBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.mas_right).offset(-10);
-        make.bottom.equalTo(self.mas_bottom).offset(-10);
-        make.size.mas_equalTo(CGSizeMake(40, 40));
+        make.left.top.right.equalTo(self);
+        make.bottom.equalTo(self.mas_bottom).offset(-kDashboardHeight);
     }];
     
-}
-
-
-- (void)moveMapToLocation:(CLLocationCoordinate2D)coord {
-    MKCoordinateSpan span     = MKCoordinateSpanMake(0.008, 0.008);
-    MKCoordinateRegion region = MKCoordinateRegionMake(coord, span);
-    [_mapView setRegion:region animated:NO];
-}
-
-
-
-
-- (void)setupDashboardViews {
     _dashBoardView = [UIView new];
     _dashBoardView.backgroundColor = [UIColor whiteColor];
     [self addSubview:_dashBoardView];
@@ -98,47 +71,99 @@
     _runnerSpeedLabel.text = @"s";
 }
 
-
-#pragma mark - public mathods
-
-
-- (void)setRunnerSteps:(NSArray *)runnerSteps {
-    _runnerSteps     = runnerSteps;
-    RunnerStep *step = [_runnerSteps lastObject];
-    [self moveMapToLocation:step.coordinate];
-    [self performSelector:@selector(startRunnerPathAnimation) withObject:self afterDelay:1.0];
+- (void)showRelocationButton {
+    UIButton *resetLocationBtn = [UIButton new];
+    [resetLocationBtn setImage:[UIImage imageNamed:@"nl_relocation"] forState:UIControlStateNormal];
+    
+    [self addSubview:resetLocationBtn];
+    [resetLocationBtn addTarget:self action:@selector(resetLocation:) forControlEvents:UIControlEventTouchUpInside];
+    [resetLocationBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self.mas_right).offset(-10);
+        make.bottom.equalTo(self.mas_bottom).offset(-10);
+        make.size.mas_equalTo(CGSizeMake(40, 40));
+    }];
+    
 }
 
 
+
+
+#pragma mark - public mathods
+
+- (void)setRunnerCourse:(RunnerCourse *)runnerCourse {
+    _runnerCourse = runnerCourse;
+    MKCoordinateRegion region = [_runnerCourse regionOfCourse];
+    [self addTransparentOverlay:region.center];
+    [self moveMapWithRegion:region];
+    [self addHeaderAnnotation];
+    [self performSelector:@selector(startRunnerPathAnimation) withObject:self afterDelay:1.0];
+}
+
+- (void)moveMapWithRegion:(MKCoordinateRegion)region {
+//    [_mapView setRegion:region animated:NO];
+//    CGPoint point    = [_mapView convertCoordinate:region.center toPointToView:_mapView];
+//    CGFloat y        = (NL_SCREEN_HEIGHT+kDashboardHeight)/2;
+//    CGFloat x        = NL_SCREEN_WIDTH/2;
+//    CGPoint newpoint = CGPointMake(x, y);
+//    CLLocationCoordinate2D coor = [_mapView convertPoint:newpoint toCoordinateFromView:_mapView];
+//    region.center    = coor;
+    [_mapView setRegion:region animated:NO];
+}
+
 - (void)resetLocation:(id)sender {
-    [self moveMapToLocation:_mapView.userLocation.coordinate];
+//    MKCoordinateSpan span     = MKCoordinateSpanMake(0.008, 0.008);
+//    MKCoordinateRegion region = MKCoordinateRegionMake(coord, span);
+//    [_mapView setRegion:region animated:NO];
 }
 
 - (void)drawRunnerPathWithSteps {
 //    NSArray *array = [LocationManager debugprintCasheLocation];
-    int sizeOfCoord = (int)_runnerSteps.count;
+    int sizeOfCoord = (int)_runnerCourse.steps.count;
     CLLocationCoordinate2D *coords = malloc(sizeof(CLLocationCoordinate2D)*sizeOfCoord);
     int index = 0;
-    for (RunnerStep *step in _runnerSteps) {
+    for (RunnerStep *step in _runnerCourse.steps) {
         coords[index] = step.coordinate;
         index ++;
     }
-    _polyline = [MKPolyline polylineWithCoordinates:coords count:_runnerSteps.count];
+    _polyline = [MKPolyline polylineWithCoordinates:coords count:_runnerCourse.steps.count];
     [_mapView addOverlay:_polyline];
     reallocf(coords, sizeof(CLLocationCoordinate2D)*sizeOfCoord);
 }
 
-#pragma mark - layer mathods
-- (void)addTransparentOverlay {
-    _transparentCircle = [MKCircle circleWithCenterCoordinate:CLLocationCoordinate2DMake(39.905, 116.398) radius:100000000];
+#pragma mark - layer animation
+
+- (void)addHeaderAnnotation {
+    _headerPoint      = [MKPointAnnotation new];
+    RunnerStep *start = [_runnerCourse.steps firstObject];
+    _headerPoint.coordinate = start.coordinate;
+    [_mapView addAnnotation:_headerPoint];
+}
+
+
+- (CAAnimation *)constructAnnotationAnimationWithPath:(CGPathRef)path{
+    if (path == NULL){
+        return nil;
+    }
+    
+    CAKeyframeAnimation *keyFrameAnimation = [CAKeyframeAnimation animationWithKeyPath:@"position"];
+    keyFrameAnimation.duration = kAnimationDuration;
+    keyFrameAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    keyFrameAnimation.path = path;
+    keyFrameAnimation.calculationMode = kCAAnimationPaced;
+    return keyFrameAnimation;
+}
+
+
+- (void)addTransparentOverlay:(CLLocationCoordinate2D)coord {
+    _transparentCircle = [MKCircle circleWithCenterCoordinate:coord radius:1000000];
     [_mapView addOverlay:_transparentCircle level:1];
 }
 
 - (void)startRunnerPathAnimation {
-     int sizeOfCoord = (int)_runnerSteps.count;
+     int sizeOfCoord = (int)_runnerCourse.steps.count;
      CLLocationCoordinate2D *coords = malloc(sizeof(CLLocationCoordinate2D)*sizeOfCoord);
      int index = 0;
-     for (RunnerStep *step in _runnerSteps) {
+     for (RunnerStep *step in _runnerCourse.steps) {
      coords[index] = step.coordinate;
      index ++;
      }
@@ -151,6 +176,12 @@
      shapeLayerAnimation.removedOnCompletion = NO;
      shapeLayerAnimation.fillMode = kCAFillModeForwards;
      [_shapeLayer addAnimation:shapeLayerAnimation forKey:@"shape"];
+    
+    MKAnnotationView *headerView = [self.mapView viewForAnnotation:_headerPoint];
+    CAAnimation *headerAnimation = [self constructAnnotationAnimationWithPath:path];
+    headerAnimation.delegate     = self;
+    [headerView.layer addAnimation:headerAnimation forKey:@"annotation"];
+    
      reallocf(coords, sizeof(CLLocationCoordinate2D)*sizeOfCoord);
 }
 
@@ -190,7 +221,7 @@
     /* 经纬度转换为屏幕坐标. */
     for (int i = 0; i < count; i++) {
         points[i] = [_mapView convertCoordinate:coordinates[i] toPointToView:_mapView];
-//        NSLog(@"points %d x=%.2f,y=%.2f",i,points[i].x,points[i].y);
+        NSLog(@"points %d x=%.2f,y=%.2f",i,points[i].x,points[i].y);
     }
     return points;
 }
@@ -245,12 +276,30 @@
 //    [self resetLocation:nil];
 //     [self startRunnerPathAnimation];
 }
+- (MKAnnotationView*)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
+    if (annotation==_headerPoint) {
+        MKAnnotationView *annotation = [[MKAnnotationView alloc] initWithAnnotation:_headerPoint reuseIdentifier:@"reuseannotaion"];
+        annotation.image = [UIImage imageNamed:@"icon_header"];
+        annotation.hidden = YES;
+        return annotation;
+    }
+    else {
+        return nil;
+    }
+}
 
 #pragma mark - CAAnimationDelegate
+- (void)animationDidStart:(CAAnimation *)anim {
+    MKAnnotationView *headerView = [self.mapView viewForAnnotation:_headerPoint];
+    headerView.hidden = NO;
+}
+
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
     if (flag) {
         [self drawRunnerPathWithSteps];
         NSLog(@"%s",__FUNCTION__);
+        MKAnnotationView *headerView = [self.mapView viewForAnnotation:_headerPoint];
+        headerView.hidden = YES;
     }
 };
 

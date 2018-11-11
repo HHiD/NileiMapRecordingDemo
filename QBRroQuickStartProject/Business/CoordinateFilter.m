@@ -10,7 +10,7 @@
 #import <MapKit/MKGeometry.h>
 @implementation CoordinateFilter
 
-+ (NSArray*)processCoordinateWithArray:(NSArray<RunnerStep*>*) steps {
++ (NSMutableArray*)processCoordinateWithArray:(NSArray<RunnerStep*>*) steps {
     NSMutableArray *newSteps = [NSMutableArray arrayWithCapacity:10];
     NSInteger count = [steps count];
     NSInteger index = 1;
@@ -38,10 +38,11 @@
     MKMapPoint newPoint = MKMapPointForCoordinate(first.coordinate);
     MKMapPoint oldPoint = MKMapPointForCoordinate(second.coordinate);
     CLLocationDistance distance = MKMetersBetweenMapPoints(newPoint, oldPoint);
-    NSTimeInterval interval = second.timestamp-first.timestamp;
-    CLLocationSpeed speed = distance/interval;
-    NSLog(@"distance=%.2f,interval=%.2f,speed=%.2f",distance,interval,speed);
-    NSLog(@"first.speed=%.2f,second.speed=%.2f",first.speed,second.speed);
+//    NSLog(@"oldPoint.distance=%.2f,newPoint.distance=%.2f,distance=%.2f",first.distance,second.distance,distance);
+//    NSTimeInterval interval = second.timestamp-first.timestamp;
+//    CLLocationSpeed speed = distance/interval;
+//    NSLog(@"distance=%.2f,interval=%.2f,speed=%.2f",distance,interval,speed);
+//    NSLog(@"first.speed=%.2f,second.speed=%.2f",first.speed,second.speed);
     return distance;
 }
 @end

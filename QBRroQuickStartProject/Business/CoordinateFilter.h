@@ -21,7 +21,7 @@
 /**
  *  to filte error coordination ,mainly discard range deviation coordination
  */
-+ (NSArray*)processCoordinateWithArray:(NSArray<RunnerStep*>*) steps;
++ (NSMutableArray*)processCoordinateWithArray:(NSArray<RunnerStep*>*) steps;
 
 @end
 

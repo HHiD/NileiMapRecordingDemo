@@ -36,7 +36,7 @@
 
 - (void)startLocationManager {
     int distance = 2;
-    NSLog(@"ioslocatedistance #### %d",distance);
+//    NSLog(@"ioslocatedistance #### %d",distance);
     _locationManager                 = [[CLLocationManager alloc] init];
     _locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
     _locationManager.delegate        = self;
@@ -63,8 +63,6 @@
         }
         [self handleWithNewCoordinate:runner];
     }
-    [self endBacgroundTask];
-    
 }
 
 
@@ -82,13 +80,14 @@
     double f2 =  _runnerCourse.runningDistance;
     double newDistance = _runnerCourse.runningDistance/kBroadcastMillstone;
     if (floor(distance)<floor(newDistance)) {
-        NSLog(@"播报广播 distance=%.5f  newDistance=%.5f",distance,newDistance);
+//        NSLog(@"播报广播 distance=%.5f  newDistance=%.5f",distance,newDistance);
         double floorValue = floor(newDistance);
         NSString *txt = [NSString stringWithFormat:@"您已经跑了%d公里 加油 加油 加 加油",(int)floorValue];
         [_runnerBroadcast broadcastWithString:txt];
     }
     else {
         NSLog(@"####### distance=%.5f  newDistance=%.5f",f1,f2);
+         [self endBacgroundTask];
     }
 }
 

@@ -36,7 +36,7 @@
 
 - (void)drawRunnerPath {
 //    _runnerCourse         = [EntityManager readSampleRunnerCourse];
-    _mainView.runnerSteps = _runnerCourse.steps;
+    _mainView.runnerCourse = _runnerCourse;
     [_runnerCourse computeTotalDistance];
     _mainView.runnerSpeedLabel.text     = [NSString stringWithFormat:@"speed:%.f m/s",_runnerCourse.runningSpeed];
     _mainView.runningDistanceLabel.text = [NSString stringWithFormat:@"run:%.f m",_runnerCourse.runningDistance];

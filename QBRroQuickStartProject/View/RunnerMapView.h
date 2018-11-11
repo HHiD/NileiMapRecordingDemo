@@ -8,19 +8,22 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "EntityManager.h"
+
 /*
  * this class include many map draw method, draw path ,overlay and so on
  */
 @interface RunnerMapView : UIView<MKMapViewDelegate,CAAnimationDelegate> {
-    MKCircle     *_transparentCircle;
-    CAShapeLayer *_shapeLayer;
-    MKPolyline   *_polyline;
+    MKCircle          *_transparentCircle;
+    CAShapeLayer      *_shapeLayer;
+    MKPolyline        *_polyline;
+    MKPointAnnotation *_headerPoint;
 }
 @property(nonatomic,strong) MKMapView *mapView;
 
-@property(nonatomic,strong) NSArray   *runnerSteps;
-@property(nonatomic,strong) UILabel   *runningDistanceLabel;
-@property(nonatomic,strong) UILabel   *runnerSpeedLabel; 
+@property(nonatomic,strong) RunnerCourse  *runnerCourse;
+@property(nonatomic,strong) UILabel       *runningDistanceLabel;
+@property(nonatomic,strong) UILabel       *runnerSpeedLabel;
 - (void)showRelocationButton;
 
 @end

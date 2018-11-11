@@ -41,8 +41,8 @@
     }];
     _distanceLabel.text = @"0.00";
     
-    UILabel *unitLabel           = [UILabel new];
-    unitLabel.textColor         = [UIColor blackColor];
+    UILabel *unitLabel      = [UILabel new];
+    unitLabel.textColor     = [UIColor blackColor];
     unitLabel.textAlignment = NSTextAlignmentCenter;
     unitLabel.font          = [UIFont boldSystemFontOfSize:30];
     [self addSubview:unitLabel];
